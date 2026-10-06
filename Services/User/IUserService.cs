@@ -6,6 +6,7 @@ public interface IUserService
     public Task<ServiceResult> ChangePassword(int userId, ChangePasswordRequest user, CancellationToken cancellationToken);
     public Task<ServiceResult> DeleteUser(int userId, DeleteUserRequest user, CancellationToken cancellationToken);
 
+    // New feature going to be added to the branch
     // Owner Services
     //public Task<ServiceResult<GetOwnerResponse>> GetOwnerDetails(int ownerId, CancellationToken cancellationToken);
     //public Task<ServiceResult<UpdateOwnerResponse>> UpdateOwner(int ownerId, UpdateOwnerRequest user, CancellationToken cancellationToken);
