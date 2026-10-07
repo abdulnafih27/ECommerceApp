@@ -7,6 +7,7 @@ public interface IUserService
     public Task<ServiceResult> DeleteUser(int userId, DeleteUserRequest user, CancellationToken cancellationToken);
 
     // New feature going to be added to the branch
+    // From Other laptop
     // Owner Services
     //public Task<ServiceResult<GetOwnerResponse>> GetOwnerDetails(int ownerId, CancellationToken cancellationToken);
     //public Task<ServiceResult<UpdateOwnerResponse>> UpdateOwner(int ownerId, UpdateOwnerRequest user, CancellationToken cancellationToken);
