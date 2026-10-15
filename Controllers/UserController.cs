@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Route("api/[controller]/me")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class UserController : ControllerBase
@@ -12,7 +12,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet]
+    [HttpGet("me")]
     public async Task<IActionResult> GetUserDetails(CancellationToken cancellationToken)
     {
         var userId = User.GetCurrentUser();
@@ -20,30 +20,38 @@ public class UserController : ControllerBase
         return this.ToActionResult(res);
     }
 
-    [HttpPatch("update")]
+    [HttpPatch("me/update")]
     [Authorize(policy: "ActiveStatus")]
-    public async Task<IActionResult> UpdateUser(UpdateUserRequest req, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateUser(UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetCurrentUser();
-        var res = await _userService.UpdateUser(userId, req, cancellationToken);
+        var res = await _userService.UpdateUser(userId, request, cancellationToken);
         return this.ToActionResult(res);
     }
 
-    [HttpDelete("delete")]
+    [HttpDelete("me/delete")]
     [Authorize(policy: "ActiveStatus")]
-    public async Task<IActionResult> DeleteUser(DeleteUserRequest req, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteUser(DeleteUserRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetCurrentUser();
-        var res = await _userService.DeleteUser(userId, req, cancellationToken);
+        var res = await _userService.DeleteUser(userId, request, cancellationToken);
         return this.ToActionResult(res);
     }
 
-    [HttpPatch("password")]
+    [HttpPatch("me/password")]
     [Authorize(policy: "ActiveStatus")]
-    public async Task<IActionResult> ChangePassword(ChangePasswordRequest req, CancellationToken cancellationToken)
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
     {
         var userId = User.GetCurrentUser();
-        var res = await _userService.ChangePassword(userId, req, cancellationToken);
+        var res = await _userService.ChangePassword(userId, request, cancellationToken);
+        return this.ToActionResult(res);
+    }
+
+    [HttpGet("/admin/users")]
+    [Authorize(Roles = "Admin"), Authorize(policy: "ActiveStatus")]
+    public async Task<IActionResult> GetAllUsers([FromQuery] Pagination pagination, CancellationToken cancellationToken)
+    {
+        var res = await _userService.GetAllUsers(pagination, cancellationToken);
         return this.ToActionResult(res);
     }
 }

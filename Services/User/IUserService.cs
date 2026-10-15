@@ -6,7 +6,6 @@ public interface IUserService
     public Task<ServiceResult> ChangePassword(int userId, ChangePasswordRequest request, CancellationToken cancellationToken);
     public Task<ServiceResult> DeleteUser(int userId, DeleteUserRequest request, CancellationToken cancellationToken);
 
-
     // Admin Services
     public Task<ServiceResult<PagedResult<UserDetailsResponse>>> GetAllUsers(Pagination pagination, CancellationToken cancellationToken);
 }
