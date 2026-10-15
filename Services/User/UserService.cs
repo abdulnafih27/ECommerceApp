@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService
@@ -15,26 +16,26 @@ public class UserService : IUserService
         _mapper = mapper;
         _hasher = hasher;
     }
-    public async Task<ServiceResult<GetUserResponse>> GetUserDetails(int userId, CancellationToken cancellationToken)
+    public async Task<ServiceResult<UserDetailsResponse>> GetUserDetails(int userId, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
         if (user == null)
         {
             _logger.LogWarning("Get UserDetails Failed: User doesn't exist {UserId}",userId);
-            return ServiceResult<GetUserResponse>.Failed("User doesn't exist", ErrorType.NotFound);
+            return ServiceResult<UserDetailsResponse>.Failed("User doesn't exist", ErrorType.NotFound);
         }
 
-        return ServiceResult<GetUserResponse>.Success(_mapper.Map<GetUserResponse>(user));
+        return ServiceResult<UserDetailsResponse>.Success(_mapper.Map<UserDetailsResponse>(user));
     }
-    public async Task<ServiceResult<UpdateUserResponse>> UpdateUser(int userId, UpdateUserRequest req, CancellationToken cancellationToken)
+    public async Task<ServiceResult<UserDetailsResponse>> UpdateUser(int userId, UpdateUserRequest req, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
         if (user == null)
         {
             _logger.LogWarning("Update Failed: User doesn't exist {UserId}",userId);
-            return ServiceResult<UpdateUserResponse>.Failed("User doesn't exist", ErrorType.NotFound);
+            return ServiceResult<UserDetailsResponse>.Failed("User doesn't exist", ErrorType.NotFound);
         }
 
         if (req.Email != null)
@@ -43,7 +44,7 @@ public class UserService : IUserService
             if (emailExists)
             {
                 _logger.LogWarning("Update Failed: dublicate email {Email}", req.Email);
-                return ServiceResult<UpdateUserResponse>.Failed("Email already exists", ErrorType.Conflict);
+                return ServiceResult<UserDetailsResponse>.Failed("Email already exists", ErrorType.Conflict);
             }
             user.Email = req.Email;
         }
@@ -54,7 +55,7 @@ public class UserService : IUserService
             if (usernameExists)
             {
                 _logger.LogWarning("Update Failed: dublicate username {Username}",req.Username);
-                return ServiceResult<UpdateUserResponse>.Failed("Username already exists", ErrorType.Conflict);
+                return ServiceResult<UserDetailsResponse>.Failed("Username already exists", ErrorType.Conflict);
             }
 
             user.Username = req.Username;
@@ -68,7 +69,7 @@ public class UserService : IUserService
         await _context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Update successful for user {UserId}", userId);
-        return ServiceResult<UpdateUserResponse>.Success(_mapper.Map<UpdateUserResponse>(user));
+        return ServiceResult<UserDetailsResponse>.Success(_mapper.Map<UserDetailsResponse>(user));
     }
     public async Task<ServiceResult> DeleteUser(int userId, DeleteUserRequest req, CancellationToken cancellationToken)
     {
@@ -114,4 +115,22 @@ public class UserService : IUserService
         return ServiceResult.Success();
     }
 
+    public async Task<ServiceResult<PagedResult<UserDetailsResponse>>> GetAllUsers(Pagination pagination, CancellationToken cancellationToken)
+    {
+        var page = pagination.Page;
+        var pageSize = pagination.PageSize;
+        
+        var usersCount = await _context.Users.CountAsync(cancellationToken);
+        var users = await _context.Users
+                                    .OrderByDescending(u => u.CreatedOn)
+                                    .ThenBy(u => u.UserId)
+                                    .Skip((page - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync(cancellationToken);
+
+        PagedResult<UserDetailsResponse> res = PagedResult<UserDetailsResponse>.Create(_mapper.Map<List<UserDetailsResponse>>(users), pagination, usersCount);
+        
+        return ServiceResult<PagedResult<UserDetailsResponse>>.Success(res);
+
+    }
 }

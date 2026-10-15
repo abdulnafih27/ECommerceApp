@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-public class OwnerRequestResponse
+public class UserDetailsResponse
 {
     public int UserId {get; set;}
     public string Username { get; set; } = string.Empty;
@@ -8,6 +8,6 @@ public class OwnerRequestResponse
     public string PhoneNumber { get; set; } = string.Empty;
     public Roles Role { get; set; }
     public UserStatus Status { get; set; }
-    public DateTime CreatedOn { get; set; } 
-    public DateTime ModifiedOn { get; set; } 
+    public DateTime CreatedOn { get; set; }
+    public DateTime ModifiedOn { get; set; }
 }
