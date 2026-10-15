@@ -1,4 +1,4 @@
 public enum UserStatus
 {
-    Pending, Active, Suspended
+    Active, Suspended
 }

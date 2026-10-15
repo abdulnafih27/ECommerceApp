@@ -69,35 +69,5 @@ public class AuthService : IAuthService
         _logger.LogInformation("Login Successfull: username {Username}", res.Username);
         return ServiceResult<AuthUserResponse>.Success(res);
     }
-    public async Task<ServiceResult<OwnerRequestResponse>> RegisterOwner(RegisterOwnerRequest user, CancellationToken cancellationToken)
-    {
-        var emailExists = await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Email == user.Email.ToLowerInvariant(), cancellationToken);
-        if (emailExists)
-        {
-            _logger.LogWarning("Registration Failed: dublicate email {Email}", user.Email);
-            return ServiceResult<OwnerRequestResponse>.Failed("Email already exists", ErrorType.Conflict);
-        }
 
-        var usernameExists = await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Username == user.Username.ToLowerInvariant(), cancellationToken);
-        if (usernameExists)
-        {
-            _logger.LogWarning("Registration Failed: dublicate username {Username}",user.Username);
-            return ServiceResult<OwnerRequestResponse>.Failed("Username already exists", ErrorType.Conflict);
-        }
-
-        // map the user request to the User table
-        var newUser = _mapper.Map<User>(user);
-        newUser.PasswordHash = _hasher.HashPassword(user.Password);
-        newUser.Role = Roles.Owner;
-        newUser.Status = UserStatus.Pending;
-
-        await _context.Users.AddAsync(newUser);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        // Return owner details back and status pending
-        var res = _mapper.Map<OwnerRequestResponse>(newUser);
-
-        _logger.LogInformation("Onwer Request Successfull: username {Username}", res.Username);
-        return ServiceResult<OwnerRequestResponse>.Success(res);
-    }
 }
