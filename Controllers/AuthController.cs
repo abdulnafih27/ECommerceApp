@@ -24,10 +24,4 @@ public class AuthController : ControllerBase
         return this.ToActionResult(res);
     }
 
-    [HttpPost("owner/register")]
-    public async Task<IActionResult> RegisterOwner(RegisterOwnerRequest user, CancellationToken cancellationToken)
-    {
-        var res = await _authService.RegisterOwner(user, cancellationToken);
-        return this.ToActionResult(res);
-    }
 }

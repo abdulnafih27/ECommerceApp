@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService
@@ -15,62 +16,62 @@ public class UserService : IUserService
         _mapper = mapper;
         _hasher = hasher;
     }
-    public async Task<ServiceResult<GetUserResponse>> GetUserDetails(int userId, CancellationToken cancellationToken)
+    public async Task<ServiceResult<UserDetailsResponse>> GetUserDetails(int userId, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
         if (user == null)
         {
             _logger.LogWarning("Get UserDetails Failed: User doesn't exist {UserId}",userId);
-            return ServiceResult<GetUserResponse>.Failed("User doesn't exist", ErrorType.NotFound);
+            return ServiceResult<UserDetailsResponse>.Failed("User doesn't exist", ErrorType.NotFound);
         }
 
-        return ServiceResult<GetUserResponse>.Success(_mapper.Map<GetUserResponse>(user));
+        return ServiceResult<UserDetailsResponse>.Success(_mapper.Map<UserDetailsResponse>(user));
     }
-    public async Task<ServiceResult<UpdateUserResponse>> UpdateUser(int userId, UpdateUserRequest req, CancellationToken cancellationToken)
+    public async Task<ServiceResult<UserDetailsResponse>> UpdateUser(int userId, UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
         if (user == null)
         {
             _logger.LogWarning("Update Failed: User doesn't exist {UserId}",userId);
-            return ServiceResult<UpdateUserResponse>.Failed("User doesn't exist", ErrorType.NotFound);
+            return ServiceResult<UserDetailsResponse>.Failed("User doesn't exist", ErrorType.NotFound);
         }
 
-        if (req.Email != null)
+        if (request.Email != null)
         {
-            var emailExists = await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.UserId != userId && u.Email == req.Email.ToLowerInvariant(), cancellationToken);
+            var emailExists = await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.UserId != userId && u.Email == request.Email.ToLowerInvariant(), cancellationToken);
             if (emailExists)
             {
-                _logger.LogWarning("Update Failed: dublicate email {Email}", req.Email);
-                return ServiceResult<UpdateUserResponse>.Failed("Email already exists", ErrorType.Conflict);
+                _logger.LogWarning("Update Failed: dublicate email {Email}", request.Email);
+                return ServiceResult<UserDetailsResponse>.Failed("Email already exists", ErrorType.Conflict);
             }
-            user.Email = req.Email;
+            user.Email = request.Email;
         }
 
-        if (req.Username != null)
+        if (request.Username != null)
         {
-            var usernameExists = await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.UserId != userId && u.Username == req.Username.ToLowerInvariant(), cancellationToken);
+            var usernameExists = await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.UserId != userId && u.Username == request.Username.ToLowerInvariant(), cancellationToken);
             if (usernameExists)
             {
-                _logger.LogWarning("Update Failed: dublicate username {Username}",req.Username);
-                return ServiceResult<UpdateUserResponse>.Failed("Username already exists", ErrorType.Conflict);
+                _logger.LogWarning("Update Failed: dublicate username {Username}",request.Username);
+                return ServiceResult<UserDetailsResponse>.Failed("Username already exists", ErrorType.Conflict);
             }
 
-            user.Username = req.Username;
+            user.Username = request.Username;
         }
 
-        if (req.PhoneNumber != null)
+        if (request.PhoneNumber != null)
         {
-            user.PhoneNumber = req.PhoneNumber;
+            user.PhoneNumber = request.PhoneNumber;
         }
 
         await _context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Update successful for user {UserId}", userId);
-        return ServiceResult<UpdateUserResponse>.Success(_mapper.Map<UpdateUserResponse>(user));
+        return ServiceResult<UserDetailsResponse>.Success(_mapper.Map<UserDetailsResponse>(user));
     }
-    public async Task<ServiceResult> DeleteUser(int userId, DeleteUserRequest req, CancellationToken cancellationToken)
+    public async Task<ServiceResult> DeleteUser(int userId, DeleteUserRequest request, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
@@ -80,7 +81,7 @@ public class UserService : IUserService
             return ServiceResult.Failed("User doesn't exist", ErrorType.NotFound);
         }
 
-        if (!_hasher.VerifyPassword(req.Password, user.PasswordHash))
+        if (!_hasher.VerifyPassword(request.Password, user.PasswordHash))
         {
             _logger.LogWarning("Delete user Failed: Invalid Credentials");
             return ServiceResult.Failed("Invalid Credentials", ErrorType.Unauthorized);
@@ -92,7 +93,7 @@ public class UserService : IUserService
         _logger.LogInformation("User {Username} was deleted successfully", user.Username);
         return ServiceResult.Success();
     }
-    public async Task<ServiceResult> ChangePassword(int userId, ChangePasswordRequest req, CancellationToken cancellationToken)
+    public async Task<ServiceResult> ChangePassword(int userId, ChangePasswordRequest request, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
@@ -102,16 +103,33 @@ public class UserService : IUserService
             return ServiceResult.Failed("User doesn't exist", ErrorType.NotFound);
         }
 
-        if (!_hasher.VerifyPassword(req.Password, user.PasswordHash))
+        if (!_hasher.VerifyPassword(request.Password, user.PasswordHash))
         {
             _logger.LogWarning("Change Password Failed: Invalid Credentials");
             return ServiceResult.Failed("Invalid Credentials", ErrorType.Unauthorized);
         }
 
-        user.PasswordHash = _hasher.HashPassword(req.NewPassword);
+        user.PasswordHash = _hasher.HashPassword(request.NewPassword);
         await _context.SaveChangesAsync(cancellationToken);
 
         return ServiceResult.Success();
     }
+    public async Task<ServiceResult<PagedResult<UserDetailsResponse>>> GetAllUsers(Pagination pagination, CancellationToken cancellationToken)
+    {
+        var page = pagination.Page;
+        var pageSize = pagination.PageSize;
+        
+        var usersCount = await _context.Users.CountAsync(cancellationToken);
+        var users = await _context.Users
+                                    .OrderByDescending(u => u.CreatedOn)
+                                    .ThenBy(u => u.UserId)
+                                    .Skip((page - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync(cancellationToken);
 
+        PagedResult<UserDetailsResponse> res = PagedResult<UserDetailsResponse>.Create(_mapper.Map<List<UserDetailsResponse>>(users), pagination, usersCount);
+        
+        return ServiceResult<PagedResult<UserDetailsResponse>>.Success(res);
+
+    }
 }
