@@ -47,7 +47,7 @@ public class UserController : ControllerBase
         return this.ToActionResult(res);
     }
 
-    [HttpGet("/admin/users")]
+    [HttpGet("/api/admin/users")]
     [Authorize(Roles = "Admin"), Authorize(policy: "ActiveStatus")]
     public async Task<IActionResult> GetAllUsers([FromQuery] Pagination pagination, CancellationToken cancellationToken)
     {
