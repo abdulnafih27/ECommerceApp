@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-public static class ControllerBaseExtentions
+public static class ControllerBaseExtensions
 {
     public static IActionResult ToActionResult<T>(this ControllerBase controller, ServiceResult<T> result)
     {

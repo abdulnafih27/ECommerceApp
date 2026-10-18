@@ -17,8 +17,11 @@ public static class ServiceCollectionExtensions
 
         // Create sql connection
         var connectionString =  config.GetConnectionString("DefaultConnection");
-        services.AddDbContext<AppDbContext>(options => 
-                    options.UseSqlite(connectionString));
+        //services.AddDbContext<AppDbContext>(options => 
+        //            options.UseSqlite(connectionString));
+
+        services.AddDbContext<AppDbContext>(options =>
+                         options.UseSqlServer(connectionString));
 
         // AutoMapper service registration
         services.AddAutoMapper(cfg =>

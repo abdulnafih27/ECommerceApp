@@ -1,3 +1,5 @@
+using ECommerceApp.Extensions;
+
 public static class ApplicationBuilderExtensions
 {
     public static WebApplication UseCustomPipeline(this WebApplication app)
@@ -7,7 +9,7 @@ public static class ApplicationBuilderExtensions
         {
             app.MapOpenApi();
         }
-        
+
         app.UseMiddleware<GlobalExceptionHandler>();
         app.UseHttpsRedirection();
         app.UseAuthentication();
