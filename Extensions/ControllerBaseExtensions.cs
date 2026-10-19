@@ -17,14 +17,20 @@ public static class ControllerBaseExtensions
 
     private static ObjectResult ToErrorResult(ControllerBase controller, ServiceResult result)
     {
-        return result.ErrorType switch
+        return controller.Problem(detail: result.Error, statusCode: ToStatusCode(result.ErrorType));
+            
+    }
+
+    private static int ToStatusCode(ErrorType errorType)
+    {
+        return errorType switch
         {
-            ErrorType.Conflict => controller.Conflict(result.Error),
-            ErrorType.Unauthorized => controller.Unauthorized(result.Error),
-            ErrorType.NotFound => controller.NotFound(result.Error),
-            ErrorType.ValidationFailed => controller.BadRequest(result.Error),
-            ErrorType.Forbidden => controller.StatusCode(403, result.Error),
-            _ => controller.StatusCode(500, result.Error)
+            ErrorType.Conflict => StatusCodes.Status409Conflict,
+            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+            ErrorType.NotFound => StatusCodes.Status404NotFound,
+            ErrorType.ValidationFailed => StatusCodes.Status400BadRequest,
+            ErrorType.Forbidden => StatusCodes.Status403Forbidden,
+            _ => throw new ArgumentOutOfRangeException(nameof(errorType), errorType, "No HTTP status mapped for this ErrorType")
         };
     }
 }

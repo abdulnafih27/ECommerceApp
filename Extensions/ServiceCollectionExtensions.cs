@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +52,19 @@ public static class ServiceCollectionExtensions
                 { 
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+        
+        // Configure ProblemDetails to give the TraceId
+        services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+            {
+                string traceId = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier;
+
+                context.ProblemDetails.Extensions["traceId"] = traceId;
+
+                context.ProblemDetails.Instance ??= context.HttpContext.Request.Path;
+            };
+        });
         
         // Adding a Authorization Policy
         services.AddAuthorization(options =>
