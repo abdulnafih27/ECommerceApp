@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 public static class ServiceCollectionExtensions
@@ -52,7 +51,7 @@ public static class ServiceCollectionExtensions
                 { 
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
-        
+
         // Configure ProblemDetails to give the TraceId
         services.AddProblemDetails(options =>
         {
@@ -65,7 +64,7 @@ public static class ServiceCollectionExtensions
                 context.ProblemDetails.Instance ??= context.HttpContext.Request.Path;
             };
         });
-        
+
         // Adding a Authorization Policy
         services.AddAuthorization(options =>
         {
