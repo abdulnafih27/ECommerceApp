@@ -75,10 +75,17 @@ public class UserService : IUserService
     {
         var user = await _context.Users.FirstOrDefaultAsync(u=> u.UserId == userId, cancellationToken);
 
+
         if (user == null)
         {
             _logger.LogWarning("Delete Failed: User doesn't exist {UserId}",userId);
             return ServiceResult.Failed("User doesn't exist", ErrorType.NotFound);
+        }
+
+        if (user.Role == Roles.Admin)
+        {
+            _logger.LogWarning("Delete Failed: Admin cannot delete their account {UserId}", userId);
+            return ServiceResult.Failed("Admin cannot delete their account", ErrorType.Forbidden);
         }
 
         if (!_hasher.VerifyPassword(request.Password, user.PasswordHash))
