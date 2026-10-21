@@ -1,4 +1,5 @@
 using ECommerceApp.Data;
+using ECommerceApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class AppDbContext : DbContext
@@ -42,6 +43,7 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

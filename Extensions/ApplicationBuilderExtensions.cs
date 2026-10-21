@@ -11,6 +11,7 @@ public static class ApplicationBuilderExtensions
         }
 
         app.UseMiddleware<GlobalExceptionHandler>();
+        app.UseStatusCodePages();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
