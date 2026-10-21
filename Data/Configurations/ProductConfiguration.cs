@@ -7,9 +7,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
     public void Configure(EntityTypeBuilder<Product> builder)
     {
 
-        builder.HasOne(c => c.Category)
-                .WithMany(p => p.Products)
-                .HasForeignKey(c => c.CategoryId)
+        builder.HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasKey(p => p.ProductId);
@@ -28,8 +28,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                 .IsRowVersion();
 
 
-        builder.ToTable(p => p.HasCheckConstraint("CK_Product_Price", "[Price] > 0"));
-        builder.ToTable(p => p.HasCheckConstraint("CK_Product_StockQuantity", "[StockQuantity] > 0"));
+        builder.ToTable("Products", t =>
+        {
+            t.HasCheckConstraint("CK_Products_Price", "[Price] > 0");
+            t.HasCheckConstraint("CK_Products_StockQuantity", "[StockQuantity] >= 0");
+        });
         
         builder.HasQueryFilter(p => !p.IsDeleted);
     }
