@@ -11,15 +11,17 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasIndex(p => new {p.CategoryId, p.ProductName}).IsUnique();
 
         builder.HasKey(p => p.ProductId);
 
         builder.Property(p => p.ProductName)
-                .HasMaxLength(200);
+                .HasMaxLength(ProductLimits.NameMaxLength);
         builder.Property(p => p.ProductDescription)
-                .HasMaxLength(2000);
+                .HasMaxLength(ProductLimits.DescriptionMaxLength);
         builder.Property(p => p.ImageUrl)
-                .HasMaxLength(2048);
+                .HasMaxLength(ProductLimits.ImageUrlMaxLength);
 
         builder.Property(p => p.Price)
                 .HasPrecision(18, 2);
