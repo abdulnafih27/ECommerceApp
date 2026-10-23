@@ -89,29 +89,27 @@ public class ProductService : IProductService
             }
         }
 
-        // Update the product name and product category
+        // Patch modified product properties from the request
         if(request.ProductName != null)
         {
             product.ProductName = request.ProductName;
         }
-        // Update the product Category
+
         if(request.CategoryId.HasValue)
         {
             product.CategoryId = request.CategoryId.Value;
         }
-        // Update the product description
+
         if(request.ProductDescription != null)
         {
             product.ProductDescription = request.ProductDescription.Trim();
         }
 
-        // Update the product stock quantity
         if(request.StockQuantity.HasValue)
         {
             product.StockQuantity = request.StockQuantity.Value;
         }
-
-        // Update the product price
+        
         if(request.Price.HasValue)
         {
             product.Price = request.Price.Value;
