@@ -27,7 +27,8 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(cfg =>
         {
            cfg.AddProfile<UserMappingProfile>();
-        }, typeof(UserMappingProfile));
+           cfg.AddProfile<ProductMappingProfile>();
+        }, typeof(UserMappingProfile), typeof(ProductMappingProfile));
 
         // Register JWT Authentication 
         var key = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not found in the configuration");

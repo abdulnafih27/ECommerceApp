@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 public class UpdateProductRequest
 {
     [MaxLength(ProductLimits.NameMaxLength)]
-    public string? ProductName { get; set; }
+    public string? ProductName { get; set => field = value.TrimToNull(); }
 
     [MaxLength(ProductLimits.DescriptionMaxLength)]
-    public string? ProductDescription { get; set; }
+    public string? ProductDescription { get; set => field = value.TrimToNull(); }
     
     [Range(typeof(decimal), ProductLimits.MinPriceText, ProductLimits.MaxPriceText, ParseLimitsInInvariantCulture = true)]
     public decimal? Price { get; set; }
@@ -19,5 +19,5 @@ public class UpdateProductRequest
     
     [MaxLength(ProductLimits.ImageUrlMaxLength)]
     [Url]
-    public string? ImageUrl { get; set; }
+    public string? ImageUrl { get; set => field = value.TrimToNull(); }
 }

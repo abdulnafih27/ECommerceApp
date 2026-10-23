@@ -48,23 +48,11 @@ public class ProductService : IProductService
     // Admin services
     public async Task<ServiceResult<ProductDetailsResponse>> CreateProduct(CreateProductRequest request, CancellationToken cancellationToken)
     {
-        var isValidCategory = await _context.Categories.AnyAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
+        var checkValidProduct = NameTakenInCategoryAsync(request.CategoryId, request.ProductName! ,0 ,cancellationToken);
 
-        if (!isValidCategory)
+        if (!checkValidProduct.Result.IsSuccess)
         {
-            _logger.LogWarning("Update Failed: Category doesnt exist {CategoryId}", request.CategoryId);
-            return ServiceResult<ProductDetailsResponse>.Failed("Category doesnt exist", ErrorType.NotFound);
-        }
-
-        var isProductDublicate = await _context.Products
-                                                .AnyAsync(p => p.CategoryId == request.CategoryId && 
-                                                                p.ProductName == request.ProductName,
-                                                                cancellationToken);
-        
-        if (isProductDublicate)
-        {
-             _logger.LogWarning("Create Product Failed: Same Product already exists in the same category {ProductName}", request.ProductName);
-            return ServiceResult<ProductDetailsResponse>.Failed("Same Product already exists in the same category", ErrorType.Conflict);
+            return ServiceResult<ProductDetailsResponse>.Failed(checkValidProduct.Result.Error!, checkValidProduct.Result.ErrorType);
         }
 
         var newProduct = _mapper.Map<Product>(request);
@@ -87,53 +75,34 @@ public class ProductService : IProductService
             return ServiceResult<ProductDetailsResponse>.Failed("Product doesn't exist", ErrorType.NotFound);
         }
 
+
+        if(request.ProductName != null || request.CategoryId.HasValue)
+        {
+            var productName = request.ProductName ?? product.ProductName;
+            var categoryId = request.CategoryId ?? product.CategoryId;
+            
+            var checkValidProduct = NameTakenInCategoryAsync(categoryId, productName, productId, cancellationToken);
+
+            if (!checkValidProduct.Result.IsSuccess)
+            {
+                return ServiceResult<ProductDetailsResponse>.Failed(checkValidProduct.Result.Error!, checkValidProduct.Result.ErrorType);
+            }
+        }
+
         // Update the product name and product category
         if(request.ProductName != null)
         {
-            var categoryId = request.CategoryId ?? product.CategoryId;
-
-            var isProductDuplicate = await _context.Products
-                                                    .AnyAsync(p => p.ProductId != productId && 
-                                                                p.CategoryId == categoryId && 
-                                                                p.ProductName == request.ProductName,
-                                                                cancellationToken);
-            
-            if (isProductDuplicate)
-            {
-                _logger.LogWarning("Update Failed: duplicate Product name in category {CategoryId}", categoryId);
-                return ServiceResult<ProductDetailsResponse>.Failed("Product Name already exists in this category", ErrorType.Conflict);
-            }
-
             product.ProductName = request.ProductName;
         }
-
+        // Update the product Category
         if(request.CategoryId.HasValue)
         {
-            var isValidCategory = await _context.Categories.AnyAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
-
-            if (!isValidCategory)
-            {
-                _logger.LogWarning("Update Failed: Category doesnt exist {CategoryId}", request.CategoryId);
-                return ServiceResult<ProductDetailsResponse>.Failed("Category doesnt exist", ErrorType.NotFound);
-            }
-
-            var isProductDuplicate = await _context.Products
-                                                    .AnyAsync(p => p.ProductId != productId && 
-                                                                p.CategoryId == request.CategoryId && 
-                                                                p.ProductName == product.ProductName,
-                                                                cancellationToken);
-             if (isProductDuplicate)
-            {
-                _logger.LogWarning("Update Failed: duplicate Product name in category {CategoryId}", request.CategoryId);
-                return ServiceResult<ProductDetailsResponse>.Failed("Product Name already exists in this category", ErrorType.Conflict);
-            }
-
             product.CategoryId = request.CategoryId.Value;
         }
         // Update the product description
         if(request.ProductDescription != null)
         {
-            product.ProductDescription = request.ProductDescription;
+            product.ProductDescription = request.ProductDescription.Trim();
         }
 
         // Update the product stock quantity
@@ -154,7 +123,15 @@ public class ProductService : IProductService
             product.ImageUrl = request.ImageUrl;
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _logger.LogWarning("Update Failed: Product was updated recently please reload {ProductId}", productId);
+            return ServiceResult<ProductDetailsResponse>.Failed("Product was updated recently please reload", ErrorType.Conflict);
+        }
 
         _logger.LogInformation("Update Successfull for product {ProductId}", productId);
         return ServiceResult<ProductDetailsResponse>.Success(_mapper.Map<ProductDetailsResponse>(product));
@@ -173,6 +150,33 @@ public class ProductService : IProductService
         await _context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Product {ProductName} was deleted successfully", product.ProductName);
+        return ServiceResult.Success();
+    }
+    
+    // Helper functions
+    private async Task<ServiceResult> NameTakenInCategoryAsync(int categoryId, string name, int? excludeProductId, CancellationToken cancellationToken)
+    {
+            var isValidCategory = await _context.Categories.AnyAsync(c => c.CategoryId == categoryId, cancellationToken);
+
+            if (!isValidCategory)
+            {
+                _logger.LogWarning("Category doesnt exist {CategoryId}", categoryId);
+                return ServiceResult.Failed("Category doesnt exist", ErrorType.ValidationFailed);
+            }
+
+            var isProductDuplicate = await _context.Products
+                                                    .IgnoreQueryFilters()
+                                                    .AnyAsync(p => p.ProductId != excludeProductId && 
+                                                                p.CategoryId == categoryId && 
+                                                                p.ProductName == name,
+                                                                cancellationToken);
+            
+            if (isProductDuplicate)
+            {
+                _logger.LogWarning("Duplicate Product name in category {CategoryId}", categoryId);
+                return ServiceResult.Failed("Product Name already exists in this category", ErrorType.Conflict);
+            }
+
         return ServiceResult.Success();
     }
 }
