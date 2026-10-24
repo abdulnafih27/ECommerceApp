@@ -1,3 +1,4 @@
+using ECommerceApp.Common;
 using ECommerceApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,8 +12,8 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.HasIndex(c => c.CategoryName).IsUnique();
 
         builder.Property(c => c.CategoryName)
-                .HasMaxLength(100);
+                .HasMaxLength(CategoryLimits.CategoryNameMaxLength);
         builder.Property(c => c.CategoryDescription)
-                .HasMaxLength(2000);
+                .HasMaxLength(CategoryLimits.CategoryDescriptionMaxLength);
     }
 }
