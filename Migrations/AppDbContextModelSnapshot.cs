@@ -100,11 +100,12 @@ namespace ECommerceApp.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("CategoryId", "ProductName")
+                        .IsUnique();
 
                     b.ToTable("Products", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Products_Price", "[Price] > 0");
+                            t.HasCheckConstraint("CK_Products_Price", "[Price] >= 0");
 
                             t.HasCheckConstraint("CK_Products_StockQuantity", "[StockQuantity] >= 0");
                         });

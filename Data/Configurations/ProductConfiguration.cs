@@ -32,7 +32,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.ToTable("Products", t =>
         {
-            t.HasCheckConstraint("CK_Products_Price", "[Price] > 0");
+            t.HasCheckConstraint("CK_Products_Price", "[Price] >= 0");
             t.HasCheckConstraint("CK_Products_StockQuantity", "[StockQuantity] >= 0");
         });
         

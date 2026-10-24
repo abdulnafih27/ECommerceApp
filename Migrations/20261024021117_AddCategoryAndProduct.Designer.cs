@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261021145424_AddCategoryAndProduct")]
+    [Migration("20261024021117_AddCategoryAndProduct")]
     partial class AddCategoryAndProduct
     {
         /// <inheritdoc />
@@ -103,11 +103,12 @@ namespace ECommerceApp.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("CategoryId", "ProductName")
+                        .IsUnique();
 
                     b.ToTable("Products", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Products_Price", "[Price] > 0");
+                            t.HasCheckConstraint("CK_Products_Price", "[Price] >= 0");
 
                             t.HasCheckConstraint("CK_Products_StockQuantity", "[StockQuantity] >= 0");
                         });

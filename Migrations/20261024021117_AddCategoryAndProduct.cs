@@ -47,7 +47,7 @@ namespace ECommerceApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductId);
-                    table.CheckConstraint("CK_Products_Price", "[Price] > 0");
+                    table.CheckConstraint("CK_Products_Price", "[Price] >= 0");
                     table.CheckConstraint("CK_Products_StockQuantity", "[StockQuantity] >= 0");
                     table.ForeignKey(
                         name: "FK_Products_Categories_CategoryId",
@@ -64,9 +64,10 @@ namespace ECommerceApp.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_CategoryId",
+                name: "IX_Products_CategoryId_ProductName",
                 table: "Products",
-                column: "CategoryId");
+                columns: new[] { "CategoryId", "ProductName" },
+                unique: true);
         }
 
         /// <inheritdoc />
