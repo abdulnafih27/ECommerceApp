@@ -30,7 +30,8 @@ public static class ServiceCollectionExtensions
            cfg.AddProfile<UserMappingProfile>();
            cfg.AddProfile<ProductMappingProfile>();
            cfg.AddProfile<CategoryMappingProfile>();
-        }, typeof(UserMappingProfile), typeof(ProductMappingProfile), typeof(CategoryMappingProfile));
+           cfg.AddProfile<CartItemsMappingProfile>();
+        }, typeof(UserMappingProfile), typeof(ProductMappingProfile), typeof(CategoryMappingProfile), typeof(CartItemsMappingProfile));
 
         // Register JWT Authentication 
         var key = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not found in the configuration");

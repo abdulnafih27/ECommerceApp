@@ -84,7 +84,9 @@ public class ProductService : IProductService
     }
     public async Task<ServiceResult<ProductDetailsResponse>> UpdateProduct(int productId, UpdateProductRequest request, CancellationToken cancellationToken)
     {
-        var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
+        var product = await _context.Products
+                                    .Include(p => p.Category)
+                                    .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
 
         if(product == null)
         {

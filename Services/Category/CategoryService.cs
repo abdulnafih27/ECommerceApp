@@ -24,7 +24,7 @@ public class CategoryService : ICategoryService
                                     .AsNoTracking()
                                     .ToListAsync(cancellationToken);
 
-        List<CategoryDetailsResponse> res = _mapper.Map<List<CategoryDetailsResponse>>(categories);
+        var res = _mapper.Map<List<CategoryDetailsResponse>>(categories);
 
         return ServiceResult<List<CategoryDetailsResponse>>.Success(res);
     }
