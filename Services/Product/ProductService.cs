@@ -40,7 +40,10 @@ public class ProductService : IProductService
     }
     public async Task<ServiceResult<ProductDetailsResponse>> GetProduct(int productId, CancellationToken cancellationToken)
     {
-        var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
+        var product = await _context.Products
+                                    .Include(p => p.Category)
+                                    .AsNoTracking()
+                                    .FirstOrDefaultAsync(p => p.ProductId == productId, cancellationToken);
 
         if (product == null)
         {
