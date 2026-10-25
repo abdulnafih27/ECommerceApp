@@ -15,21 +15,26 @@ public class ProductService : IProductService
         _logger = logger;
         _mapper = mapper;
     }
-    public async Task<ServiceResult<PagedResult<ProductDetailsResponse>>> GetAllProducts(Pagination pagination, CancellationToken cancellationToken)
+    public async Task<ServiceResult<PagedResult<ProductDetailsResponse>>> GetAllProducts(Pagination pagination, int? categoryId, CancellationToken cancellationToken)
     {
         var page = pagination.Page;
         var pageSize = pagination.PageSize;
-        
-        var productsCount = await _context.Products.CountAsync(cancellationToken);
-        var products = await _context.Products
+
+        var query = _context.Products
+                            .AsNoTracking()
+                            .Where(p => !categoryId.HasValue || p.CategoryId == categoryId);
+
+        var productsCount = await query.CountAsync(cancellationToken);
+        var products = await query
+                                    .Include(p => p.Category)
                                     .OrderBy(p => p.ProductName)
                                     .ThenBy(p => p.ProductId)
                                     .Skip((page - 1) * pageSize)
                                     .Take(pageSize)
-                                    .AsNoTracking()
                                     .ToListAsync(cancellationToken);
 
-        PagedResult<ProductDetailsResponse> res = PagedResult<ProductDetailsResponse>.Create(_mapper.Map<List<ProductDetailsResponse>>(products), pagination, productsCount);
+        var mappedProducts = _mapper.Map<List<ProductDetailsResponse>>(products);
+        var res = PagedResult<ProductDetailsResponse>.Create(mappedProducts, pagination, productsCount);
         
         return ServiceResult<PagedResult<ProductDetailsResponse>>.Success(res);
     }

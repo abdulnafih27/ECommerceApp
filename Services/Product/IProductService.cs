@@ -1,6 +1,6 @@
 public interface IProductService
 {
-    public Task<ServiceResult<PagedResult<ProductDetailsResponse>>> GetAllProducts(Pagination pagination, CancellationToken cancellationToken);
+    public Task<ServiceResult<PagedResult<ProductDetailsResponse>>> GetAllProducts(Pagination pagination, int? categoryId, CancellationToken cancellationToken);
     public Task<ServiceResult<ProductDetailsResponse>> GetProduct(int productId, CancellationToken cancellationToken);
 
 

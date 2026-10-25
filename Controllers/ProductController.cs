@@ -15,9 +15,9 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts([FromQuery] Pagination pagination, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllProducts([FromQuery] Pagination pagination,[FromQuery] int? categoryId, CancellationToken cancellationToken)
         {
-            var res = await _productService.GetAllProducts(pagination, cancellationToken);
+            var res = await _productService.GetAllProducts(pagination, categoryId, cancellationToken);
             return this.ToActionResult(res);
         }
 

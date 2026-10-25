@@ -42,12 +42,6 @@ public class CategoryService : ICategoryService
             return ServiceResult<CategoryDetailsResponse>.Failed("Category doesn't exist", ErrorType.NotFound);
         }
 
-        var categoryProducts = await _context.Products
-                                                .Where(p => p.CategoryId == category.CategoryId)
-                                                .AsNoTracking()
-                                                .ToListAsync(cancellationToken);
-
-
         return ServiceResult<CategoryDetailsResponse>.Success(_mapper.Map<CategoryDetailsResponse>(category));
     }
     public async Task<ServiceResult<CategoryDetailsResponse>> CreateCategory(CreateCategoryRequest request, CancellationToken cancellationToken)
@@ -78,13 +72,83 @@ public class CategoryService : ICategoryService
         _logger.LogInformation("Category Creation Successful: category name {CategoryName}", res.CategoryName);
         return ServiceResult<CategoryDetailsResponse>.Success(res);
     }
-    //public async Task<ServiceResult<CategoryDetailsResponse>> UpdateCategory(int categoryId, UpdateCategoryRequest request, CancellationToken cancellationToken)
-    //{
+    public async Task<ServiceResult<CategoryDetailsResponse>> UpdateCategory(int categoryId, UpdateCategoryRequest request, CancellationToken cancellationToken)
+    {
+        var category = await _context.Categories
+                                        .FirstOrDefaultAsync(c => c.CategoryId == categoryId, cancellationToken);
 
-    //}
-    //public async Task<ServiceResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
-    //{
+        if (category == null)
+        {
+            _logger.LogWarning("Update Details Failed: Category doesn't exist {CategoryId}", categoryId);
+            return ServiceResult<CategoryDetailsResponse>.Failed("Category doesn't exist", ErrorType.NotFound);
+        }
 
-    //}
+        if(request.CategoryName != null)
+        {
+            var isDuplicateCategory = await _context.Categories.AnyAsync(c => c.CategoryId != categoryId && c.CategoryName == request.CategoryName, cancellationToken);
+
+            if (isDuplicateCategory)
+            {
+                _logger.LogWarning("Update Category Failed: Category already exists {CategoryName}", request.CategoryName);
+                return ServiceResult<CategoryDetailsResponse>.Failed("Category already exists", ErrorType.Conflict);
+            }
+
+            category.CategoryName = request.CategoryName;
+        }
+
+        if(request.CategoryDescription != null)
+        {
+            category.CategoryDescription = request.CategoryDescription;
+        }
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.IsUniqueViolation())
+        {
+            _logger.LogWarning("Update Category Failed: Category name already exists {CategoryId}", categoryId);
+            return ServiceResult<CategoryDetailsResponse>.Failed("Category name already exists", ErrorType.Conflict);
+        }
+
+        var res = _mapper.Map<CategoryDetailsResponse>(category);
+
+        _logger.LogInformation("Category Update Successful: category {CategoryId}", categoryId);
+        return ServiceResult<CategoryDetailsResponse>.Success(res);
+
+    }
+    public async Task<ServiceResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+    {
+        var category = await _context.Categories
+                                        .AsNoTracking()
+                                        .FirstOrDefaultAsync(c => c.CategoryId == categoryId, cancellationToken);
+
+        if (category == null)
+        {
+            _logger.LogWarning("Delete Category Failed: Category doesn't exist {CategoryId}", categoryId);
+            return ServiceResult.Failed("Category doesn't exist", ErrorType.NotFound);
+        }
+
+        var categoryHasProducts = await _context.Products.IgnoreQueryFilters().AnyAsync(p => p.CategoryId == categoryId, cancellationToken);
+        if (categoryHasProducts)
+        {
+            _logger.LogWarning("Delete Category Failed: Category still has products {CategoryId}", categoryId);
+            return ServiceResult.Failed("Category still has products", ErrorType.Conflict);
+        }
+
+        _context.Categories.Remove(category);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch(DbUpdateException ex) when (ex.IsForeignKeyViolation())
+        {
+            _logger.LogWarning("Delete Category Failed: Category still has products {CategoryId}", categoryId);
+            return ServiceResult.Failed("Category still has products", ErrorType.Conflict);
+        }
+      
+        _logger.LogInformation("Delete Category Successful {CategoryId}", categoryId); 
+        return ServiceResult.Success();
+    }
 }
 

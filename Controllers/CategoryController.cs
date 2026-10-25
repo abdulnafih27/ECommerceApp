@@ -38,5 +38,21 @@ public class CategoryController : ControllerBase
         return this.ToActionResult(res);
     }
 
+    [HttpPatch("{categoryId}/update")]
+    [Authorize(Roles="Admin")]
+    public async Task<IActionResult> UpdateCategory(int categoryId, UpdateCategoryRequest request, CancellationToken cancellationToken)
+    {
+        var res = await _categoryService.UpdateCategory(categoryId, request, cancellationToken);
+        return this.ToActionResult(res);
+    }
+    
+    [HttpDelete("{categoryId}/delete")]
+    [Authorize(Roles="Admin")]
+    public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
+    {
+        var res = await _categoryService.DeleteCategory(categoryId, cancellationToken);
+        return this.ToActionResult(res);
+    }
+
 }
 
