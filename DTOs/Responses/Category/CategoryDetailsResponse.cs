@@ -9,6 +9,5 @@ namespace ECommerceApp.DTOs.Responses.Category
         public string? CategoryDescription { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime ModifiedOn { get; set; }
-        public ICollection<ProductDetailsResponse> Products { get; set; } = new List<ProductDetailsResponse>();
     }
 }

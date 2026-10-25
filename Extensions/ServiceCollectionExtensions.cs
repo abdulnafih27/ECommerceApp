@@ -1,10 +1,11 @@
-using System.Diagnostics;
-using System.Text;
-using System.Text.Json.Serialization;
+using ECommerceApp.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json.Serialization;
 
 public static class ServiceCollectionExtensions
 {
@@ -28,7 +29,8 @@ public static class ServiceCollectionExtensions
         {
            cfg.AddProfile<UserMappingProfile>();
            cfg.AddProfile<ProductMappingProfile>();
-        }, typeof(UserMappingProfile), typeof(ProductMappingProfile));
+           cfg.AddProfile<CategoryMappingProfile>();
+        }, typeof(UserMappingProfile), typeof(ProductMappingProfile), typeof(CategoryMappingProfile));
 
         // Register JWT Authentication 
         var key = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not found in the configuration");
@@ -86,6 +88,8 @@ public static class ServiceCollectionExtensions
         // Adding Controller Services as Scoped since its required in that http scope
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IProductService, ProductService>();
 
         return services;
     }
