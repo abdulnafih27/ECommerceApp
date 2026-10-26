@@ -4,7 +4,6 @@ using ECommerceApp.DTOs.Requests.Cart;
 using ECommerceApp.Extensions;
 using ECommerceApp.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 
 namespace ECommerceApp.Services.Cart
 {
@@ -45,7 +44,6 @@ namespace ECommerceApp.Services.Cart
         } 
         public async Task<ServiceResult<CartItemDetailsResponse>> AddCartItem(int userId, AddCartItemRequest request, CancellationToken cancellationToken)
         {
-            // Check if the user can add more items in the cart
 
             var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci => ci.UserId == userId && ci.ProductId == request.ProductId, cancellationToken);
             
@@ -70,12 +68,14 @@ namespace ECommerceApp.Services.Cart
                 await _context.SaveChangesAsync(cancellationToken);
                 
                 var res = _mapper.Map<CartItemDetailsResponse>(cartItem);
-                
+                res.IsAvailable = true;
+
                 _logger.LogInformation("Product Quantity Added to Cart: Product {ProductId}", res.ProductId);
                 return ServiceResult<CartItemDetailsResponse>.Success(res);
             }
             else
             {
+                // Check if the user can add more items in the cart
                 var userCartCount = await _context.CartItems.Where(ci => ci.UserId == userId).CountAsync(cancellationToken);
                 if(userCartCount >= CartLimits.MaxDistinctItems)
                 {
@@ -170,8 +170,8 @@ namespace ECommerceApp.Services.Cart
 
             if (product == null)
             {
-                _logger.LogWarning("Product doesn't exist {ProductId}", productId);
-                return ServiceResult.Failed("Product doesn't exist", ErrorType.ValidationFailed);
+                _logger.LogWarning("Product is no longer available {ProductId}", productId);
+                return ServiceResult.Failed("Product is no longer available", ErrorType.ValidationFailed);
             }
 
 

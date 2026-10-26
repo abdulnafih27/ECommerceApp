@@ -9,7 +9,7 @@ namespace ECommerceApp.Mappings
         {
             CreateMap<AddCartItemRequest, CartItem>();
             CreateMap<CartItem, CartItemDetailsResponse>()
-                    .ForMember(dest => dest.IsAvailable, obj => obj.MapFrom(src => !src.Product!.IsDeleted));
+                    .ForMember(dest => dest.IsAvailable, obj => obj.MapFrom(src => src.Product != null && !src.Product.IsDeleted));
         }
     }
 }
