@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ECommerceApp.Common;
 using ECommerceApp.DTOs.Requests.Cart;
-using ECommerceApp.DTOs.Responses.Category;
 using ECommerceApp.Extensions;
 using ECommerceApp.Models;
 using Microsoft.EntityFrameworkCore;
@@ -20,42 +19,46 @@ namespace ECommerceApp.Services.Cart
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<ServiceResult<List<CartItemDetailsResponse>>> GetAllUserCartItem(int userId, CancellationToken cancellationToken)
+        public async Task<ServiceResult<CartResponse>> GetCartItems(int userId, CancellationToken cancellationToken)
         {
             var cartItems = await _context.CartItems
                                             .Include(ci => ci.Product)
                                             .IgnoreQueryFilters()
                                             .Where(ci => ci.UserId == userId)
                                             .OrderBy(ci => ci.CreatedOn)
+                                            .ThenBy(ci => ci.CartItemId)
                                             .AsNoTracking()
                                             .ToListAsync(cancellationToken);
 
-            var res = _mapper.Map<List<CartItemDetailsResponse>>(cartItems);
+            var items = _mapper.Map<List<CartItemDetailsResponse>>(cartItems);
+            var totalAmount = cartItems.Where(ci => !ci.Product!.IsDeleted).Sum(ci => ci.Quantity * ci.Product!.Price);
+            var hasUnavailableItems = items.Any(r => !r.IsAvailable);
 
-            return ServiceResult<List<CartItemDetailsResponse>>.Success(res);
+            var res = new CartResponse
+            {
+                TotalAmount = totalAmount,
+                HasUnavailableItems = hasUnavailableItems,
+                Items = items
+            };
+
+            return ServiceResult<CartResponse>.Success(res);
         } 
         public async Task<ServiceResult<CartItemDetailsResponse>> AddCartItem(int userId, AddCartItemRequest request, CancellationToken cancellationToken)
         {
-            // Check if the product exists and also if there is stock available
-            var isProductValid = await ValidateProductAndStockAsync(request.ProductId, request.Quantity, cancellationToken);
-            if (!isProductValid.IsSuccess)
-            {
-                return ServiceResult<CartItemDetailsResponse>.Failed(isProductValid.Error!, isProductValid.ErrorType);
-            }
-
             // Check if the user can add more items in the cart
-            var userCartCount = await _context.CartItems.Where(ci => ci.UserId == userId).CountAsync(cancellationToken);
-            if(userCartCount > CartLimits.MaxDistinctItems)
-            {
-                _logger.LogWarning("Add Item to cart Failed: Max cart item limit reached {limit}", CartLimits.MaxDistinctItems);
-                return ServiceResult<CartItemDetailsResponse>.Failed($"Max cart item limit reached limit: {CartLimits.MaxDistinctItems}", ErrorType.ValidationFailed);
-            }
 
             var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci => ci.UserId == userId && ci.ProductId == request.ProductId, cancellationToken);
             
             // Check if the product is already in cart? if yes, update the quantity, else add to the cart
             if (cartItem != null)
             {
+                // Check if the product exists and also if there is stock available
+                var isProductValid = await ValidateProductAndStockAsync(request.ProductId, cartItem.Quantity + request.Quantity, cancellationToken);
+                if (!isProductValid.IsSuccess)
+                {
+                    return ServiceResult<CartItemDetailsResponse>.Failed(isProductValid.Error!, isProductValid.ErrorType);
+                }
+
                 // Check if the quantity is exceeding the limit 
                 if (cartItem.Quantity + request.Quantity > CartLimits.MaxQuantityPerItem)
                 {
@@ -73,6 +76,20 @@ namespace ECommerceApp.Services.Cart
             }
             else
             {
+                var userCartCount = await _context.CartItems.Where(ci => ci.UserId == userId).CountAsync(cancellationToken);
+                if(userCartCount >= CartLimits.MaxDistinctItems)
+                {
+                    _logger.LogWarning("Add Item to cart Failed: Max cart item limit reached {Limit}", CartLimits.MaxDistinctItems);
+                    return ServiceResult<CartItemDetailsResponse>.Failed($"Max cart item limit reached limit: {CartLimits.MaxDistinctItems}", ErrorType.ValidationFailed);
+                }
+
+                // Check if the product exists and also if there is stock available
+                var isProductValid = await ValidateProductAndStockAsync(request.ProductId, request.Quantity, cancellationToken);
+                if (!isProductValid.IsSuccess)
+                {
+                    return ServiceResult<CartItemDetailsResponse>.Failed(isProductValid.Error!, isProductValid.ErrorType);
+                }
+
                 var newCartItem = _mapper.Map<CartItem>(request);
                 newCartItem.UserId = userId;
 
@@ -83,8 +100,8 @@ namespace ECommerceApp.Services.Cart
                 }
                 catch(DbUpdateException ex) when (ex.IsUniqueViolation())
                 {
-                    _logger.LogWarning("Add Item to cart Failed: Product alreay in the Cart {ProductId}", request.ProductId);
-                    return ServiceResult<CartItemDetailsResponse>.Failed("Product alreay in the Cart", ErrorType.Conflict);
+                    _logger.LogWarning("Add Item to cart Failed: Product already in the Cart {ProductId}", request.ProductId);
+                    return ServiceResult<CartItemDetailsResponse>.Failed("Product already in the Cart", ErrorType.Conflict);
                 }
                 
                 var res = _mapper.Map<CartItemDetailsResponse>(newCartItem);
@@ -101,14 +118,14 @@ namespace ECommerceApp.Services.Cart
             var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci => ci.UserId == userId && ci.CartItemId == cartItemId, cancellationToken);
             if(cartItem == null)
             {
-                _logger.LogWarning("Update CartItem Failed: Cart Item not found {cartItemId}", cartItemId);
+                _logger.LogWarning("Update CartItem Failed: Cart Item not found {CartItemId}", cartItemId);
                 return ServiceResult<CartItemDetailsResponse>.Failed("Cart Item not found", ErrorType.NotFound);
             }
 
             // Check if the updated quantity is more the limit
             if (request.Quantity > CartLimits.MaxQuantityPerItem)
             {
-                _logger.LogWarning("Update CartItem Failed: Product {cartItemId} quantity exceeds limit:{Limit}", cartItemId, CartLimits.MaxQuantityPerItem);
+                _logger.LogWarning("Update CartItem Failed: Product {CartItemId} quantity exceeds limit:{Limit}", cartItemId, CartLimits.MaxQuantityPerItem);
                 return ServiceResult<CartItemDetailsResponse>.Failed($"Product quantity exceeds limit: {CartLimits.MaxQuantityPerItem}", ErrorType.ValidationFailed);
             }
 
@@ -133,7 +150,7 @@ namespace ECommerceApp.Services.Cart
             var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci =>ci.UserId == userId && ci.CartItemId == cartItemId, cancellationToken);
             if (cartItem == null)
             {
-                _logger.LogWarning("Delete CartItem Failed: Cart Item not found {cartItemId}", cartItemId);
+                _logger.LogWarning("Delete CartItem Failed: Cart Item not found {CartItemId}", cartItemId);
                 return ServiceResult.Failed("Cart Item not found", ErrorType.NotFound);
             }
 
@@ -156,13 +173,18 @@ namespace ECommerceApp.Services.Cart
             }
 
 
-            if (product.StockQuantity == 0 || product.StockQuantity < requestQuantity)
+            if (product.StockQuantity < requestQuantity)
             {
                 _logger.LogWarning("Product doesn't have enough stock {ProductId}", productId);
-                return ServiceResult.Failed("Product doesn't have enough stock {ProductId}", ErrorType.ValidationFailed);
+                return ServiceResult.Failed("Product doesn't have enough stock", ErrorType.ValidationFailed);
             }
 
             return ServiceResult.Success();
         }
+
+        //private async Task<ServiceResult> ValidateProductAvailable(List<CartItem>? cartItems, CancellationToken cancellationToken)
+        //{
+        //    for 
+        //}
     }
 }
