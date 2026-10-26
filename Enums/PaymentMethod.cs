@@ -1,4 +1,4 @@
 public enum PaymentMethod
 {
-    CashOnDelivery
+    CashOnDelivery = 1
 }

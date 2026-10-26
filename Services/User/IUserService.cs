@@ -1,3 +1,6 @@
+using ECommerceApp.DTOs.Requests.User;
+using ECommerceApp.DTOs.Responses.User;
+
 public interface IUserService
 {
     // User Services change password and delete user can be used by all

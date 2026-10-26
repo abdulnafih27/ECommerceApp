@@ -1,9 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-public class LoginUserRequest
+
+namespace ECommerceApp.DTOs.Requests.Auth
 {
-    [Required]
-    public string Identifier { get; set; } = string.Empty;
-    [Required]
-    public string Password { get; set; } = string.Empty;
+    public class LoginUserRequest
+    {
+        [Required]
+        public string Identifier { get; set; } = string.Empty;
+        [Required]
+        public string Password { get; set; } = string.Empty;
+    }
 }

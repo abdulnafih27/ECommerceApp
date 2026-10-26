@@ -1,3 +1,6 @@
+using ECommerceApp.DTOs.Responses.Product;
+using ECommerceApp.DTOs.Requests.Product;
+
 public interface IProductService
 {
     public Task<ServiceResult<PagedResult<ProductDetailsResponse>>> GetAllProducts(Pagination pagination, int? categoryId, CancellationToken cancellationToken);

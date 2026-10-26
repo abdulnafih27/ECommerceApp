@@ -1,4 +1,5 @@
 ﻿using ECommerceApp.DTOs.Requests.Cart;
+using ECommerceApp.DTOs.Responses.Cart;
 
 public interface ICartService
 {

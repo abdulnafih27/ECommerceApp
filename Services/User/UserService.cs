@@ -1,5 +1,6 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using ECommerceApp.DTOs.Requests.User;
+using ECommerceApp.DTOs.Responses.User;
 using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService

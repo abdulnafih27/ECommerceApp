@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using ECommerceApp.DTOs.Requests.Cart;
+using ECommerceApp.DTOs.Responses.Cart;
 using ECommerceApp.Models;
 
 namespace ECommerceApp.Mappings

@@ -1,4 +1,6 @@
 using AutoMapper;
+using ECommerceApp.DTOs.Requests.Product;
+using ECommerceApp.DTOs.Responses.Product;
 using ECommerceApp.Models;
 
 public class ProductMappingProfile : Profile

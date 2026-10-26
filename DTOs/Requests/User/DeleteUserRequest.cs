@@ -1,8 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-public class DeleteUserRequest
+namespace ECommerceApp.DTOs.Requests.User
 {
-    [Required]
-    [MinLength(8)]
-    public string Password { get; set; } = string.Empty;
+    public class DeleteUserRequest
+    {
+        [Required]
+        [MinLength(8)]
+        public string Password { get; set; } = string.Empty;
+    }
 }

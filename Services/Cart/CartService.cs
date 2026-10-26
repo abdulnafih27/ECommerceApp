@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ECommerceApp.Common;
 using ECommerceApp.DTOs.Requests.Cart;
+using ECommerceApp.DTOs.Responses.Cart;
 using ECommerceApp.Extensions;
 using ECommerceApp.Models;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 public class ActiveStatusAuthorizationHandler : AuthorizationHandler<ActiveStatusRequirement>

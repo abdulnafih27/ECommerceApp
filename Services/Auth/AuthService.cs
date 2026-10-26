@@ -1,5 +1,6 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
+using ECommerceApp.DTOs.Responses.Auth;
+using ECommerceApp.DTOs.Requests.Auth;
 using Microsoft.EntityFrameworkCore;
 
 public class AuthService : IAuthService

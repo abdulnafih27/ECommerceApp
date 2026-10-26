@@ -1,15 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 
-public class CreateUserRequest
+
+namespace ECommerceApp.DTOs.Requests.Auth
 {
-    [Required]
-    public string Username { get; set; } = string.Empty;
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = string.Empty;
-    [Required]
-    [MinLength(8)]
-    public string Password { get; set; } = string.Empty;
-    [Phone]
-    public string? PhoneNumber { get; set; }
+    public class CreateUserRequest
+    {
+        [Required]
+        public string Username { get; set; } = string.Empty;
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        [Required]
+        [MinLength(8)]
+        public string Password { get; set; } = string.Empty;
+        [Phone]
+        public string? PhoneNumber { get; set; }
+    }
 }
