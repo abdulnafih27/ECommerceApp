@@ -80,7 +80,7 @@ namespace ECommerceApp.Services.Cart
                 if(userCartCount >= CartLimits.MaxDistinctItems)
                 {
                     _logger.LogWarning("Add Item to cart Failed: Max cart item limit reached {Limit}", CartLimits.MaxDistinctItems);
-                    return ServiceResult<CartItemDetailsResponse>.Failed($"Max cart item limit reached limit: {CartLimits.MaxDistinctItems}", ErrorType.ValidationFailed);
+                    return ServiceResult<CartItemDetailsResponse>.Failed($"Max cart item limit reached: {CartLimits.MaxDistinctItems}", ErrorType.ValidationFailed);
                 }
 
                 // Check if the product exists and also if there is stock available
@@ -105,7 +105,8 @@ namespace ECommerceApp.Services.Cart
                 }
                 
                 var res = _mapper.Map<CartItemDetailsResponse>(newCartItem);
-                
+                res.IsAvailable = true;
+
                 _logger.LogInformation("Product Successfully Added to Cart: Product {ProductId}", res.ProductId);
                 return ServiceResult<CartItemDetailsResponse>.Success(res);
             }
@@ -141,6 +142,7 @@ namespace ECommerceApp.Services.Cart
             await _context.SaveChangesAsync(cancellationToken);
             
             var res = _mapper.Map<CartItemDetailsResponse>(cartItem);
+            res.IsAvailable = true;
 
             _logger.LogInformation("Cart Item Update Successful: Cart Item {CartItemId}", cartItemId);
             return ServiceResult<CartItemDetailsResponse>.Success(res);
@@ -181,10 +183,5 @@ namespace ECommerceApp.Services.Cart
 
             return ServiceResult.Success();
         }
-
-        //private async Task<ServiceResult> ValidateProductAvailable(List<CartItem>? cartItems, CancellationToken cancellationToken)
-        //{
-        //    for 
-        //}
     }
 }
