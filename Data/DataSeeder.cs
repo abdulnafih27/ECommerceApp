@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ECommerceApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.Data
 {

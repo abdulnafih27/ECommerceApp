@@ -1,3 +1,4 @@
+using ECommerceApp.DTOs.Requests.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

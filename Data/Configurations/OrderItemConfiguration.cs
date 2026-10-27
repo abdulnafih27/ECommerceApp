@@ -9,12 +9,12 @@ namespace ECommerceApp.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {
-            builder.HasKey(o => o.OrderItemId);
+            builder.HasKey(oi => oi.OrderItemId);
 
-            builder.HasIndex(oi => new { oi.OrderId, oi.ProductId });
+            builder.HasIndex(oi => new { oi.OrderId, oi.ProductId }).IsUnique();
 
             builder.HasOne(oi => oi.Order)
-                .WithMany()
+                .WithMany(o => o.Items)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 

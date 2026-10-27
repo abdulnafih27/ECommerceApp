@@ -2,6 +2,7 @@ using AutoMapper;
 using ECommerceApp.DTOs.Responses.Auth;
 using ECommerceApp.DTOs.Requests.Auth;
 using Microsoft.EntityFrameworkCore;
+using ECommerceApp.Models;
 
 public class AuthService : IAuthService
 {

@@ -1,3 +1,4 @@
+using ECommerceApp.DTOs.Requests.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]

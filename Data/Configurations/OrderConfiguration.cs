@@ -44,6 +44,12 @@ namespace ECommerceApp.Data.Configurations
             builder.Property(o => o.ShippingPostalCode)
                 .HasMaxLength(OrderLimits.ShippingPostalCodeMaxLength)
                 .IsRequired();
+
+            builder.ToTable("Orders", o =>
+            {
+                o.HasCheckConstraint("CK_Orders_TotalAmount", "[TotalAmount] >= 0");
+            }
+            );
         }
     }
 }
