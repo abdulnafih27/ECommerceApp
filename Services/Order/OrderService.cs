@@ -2,10 +2,10 @@
 using ECommerceApp.DTOs.Requests.Orders;
 using ECommerceApp.DTOs.Responses.Orders;
 using ECommerceApp.Models;
-using ECommerceApp.Services.Orders;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
-namespace ECommerceApp.Services.Order
+namespace ECommerceApp.Services.Orders
 {
     public class OrderService : IOrderService
     {
@@ -28,23 +28,24 @@ namespace ECommerceApp.Services.Order
 
             var ordersCount = await query.CountAsync(cancellationToken);
             var orders = await query
-                                    .OrderBy(o => o.CreatedOn)
-                                    .ThenBy(o => o.OrderId)
+                                    .OrderByDescending(o => o.CreatedOn)
+                                    .ThenByDescending(o => o.OrderId)
+                                    .Select(SummaryProjection)
                                     .Skip((page - 1) * pageSize)
                                     .Take(pageSize)
+                                    .AsNoTracking()
                                     .ToListAsync(cancellationToken);
 
-            var mappedOrders = _mapper.Map<List<OrderSummaryResponse>>(orders);
-            var res = PagedResult<OrderSummaryResponse>.Create(mappedOrders, pagination, ordersCount);
+            var res = PagedResult<OrderSummaryResponse>.Create(orders, pagination, ordersCount);
 
             return ServiceResult<PagedResult<OrderSummaryResponse>>.Success(res);
         }
         public async Task<ServiceResult<OrderDetailsResponse>> GetMyOrder(int userId, int orderId, CancellationToken cancellationToken)
         {
             var order = await _context.Orders
-                                            .Include(o => o.Items)
-                                            .Where(o => o.OrderId == orderId && o.UserId == userId)
-                                            .ToListAsync(cancellationToken);
+                                            .Include(o => o.Items.OrderBy(oi => oi.OrderItemId))
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId, cancellationToken);
             if (order == null)
             {
                 _logger.LogWarning("Get Order Details Failed: Order doesn't exist {OrderId}", orderId);
@@ -55,10 +56,10 @@ namespace ECommerceApp.Services.Order
 
             return ServiceResult<OrderDetailsResponse>.Success(res);
         }
-        //public async Task<ServiceResult<OrderDetailsResponse>> PlaceOrder(int userId, PlaceOrderRequest request, CancellationToken cancellationToken)
-        //{
-
-        //}
+        public async Task<ServiceResult<OrderDetailsResponse>> PlaceOrder(int userId, PlaceOrderRequest request, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
         // Admin Service
         public async Task<ServiceResult<PagedResult<OrderSummaryResponse>>> GetAllOrders(Pagination pagination, CancellationToken cancellationToken)
@@ -70,23 +71,24 @@ namespace ECommerceApp.Services.Order
 
             var ordersCount = await query.CountAsync(cancellationToken);
             var orders = await query
-                                    .OrderBy(o => o.CreatedOn)
-                                    .ThenBy(o => o.OrderId)
+                                    .OrderByDescending(o => o.CreatedOn)
+                                    .ThenByDescending(o => o.OrderId)
+                                    .Select(SummaryProjection)
                                     .Skip((page - 1) * pageSize)
                                     .Take(pageSize)
+                                    .AsNoTracking()
                                     .ToListAsync(cancellationToken);
 
-            var mappedOrders = _mapper.Map<List<OrderSummaryResponse>>(orders);
-            var res = PagedResult<OrderSummaryResponse>.Create(mappedOrders, pagination, ordersCount);
+            var res = PagedResult<OrderSummaryResponse>.Create(orders, pagination, ordersCount);
 
             return ServiceResult<PagedResult<OrderSummaryResponse>>.Success(res);
         }
         public async Task<ServiceResult<OrderDetailsResponse>> GetOrderById(int orderId, CancellationToken cancellationToken)
         {
             var order = await _context.Orders
-                                            .Include(o => o.Items)
-                                            .Where(o => o.OrderId == orderId)
-                                            .ToListAsync(cancellationToken);
+                                            .Include(o => o.Items.OrderBy(oi => oi.OrderItemId))
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(o => o.OrderId == orderId, cancellationToken);
             if (order == null)
             {
                 _logger.LogWarning("Get Order Details Failed: Order doesn't exist {OrderId}", orderId);
@@ -97,6 +99,17 @@ namespace ECommerceApp.Services.Order
 
             return ServiceResult<OrderDetailsResponse>.Success(res);
         }
+
+        private static readonly Expression<Func<Order, OrderSummaryResponse>> SummaryProjection = order => new OrderSummaryResponse
+        { 
+            OrderId = order.OrderId,
+            UserId = order.UserId,
+            ShippingFullName = order.ShippingFullName,
+            CreatedOn = order.CreatedOn,
+            Status = order.Status,
+            TotalAmount = order.TotalAmount,
+            ItemCount = order.Items.Count
+        };
     }
 }
 

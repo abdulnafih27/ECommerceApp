@@ -1,8 +1,11 @@
-﻿namespace ECommerceApp.DTOs.Responses.Orders
+﻿
+namespace ECommerceApp.DTOs.Responses.Orders
 {
     public class OrderSummaryResponse
     {
         public int OrderId { get; set; }
+        public int UserId { get; set; }
+        public string? ShippingFullName { get; set; }
         public DateTime CreatedOn { get; set; }
         public OrderStatus Status { get; set; }
         public decimal TotalAmount { get; set; } 
