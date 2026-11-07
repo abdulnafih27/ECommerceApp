@@ -1,4 +1,6 @@
 using ECommerceApp.Mappings;
+using ECommerceApp.Services.Cart;
+using ECommerceApp.Services.Orders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -91,6 +93,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ICartService, CartService>();
+        services.AddScoped<IOrderService, OrderService>();
 
         return services;
     }
