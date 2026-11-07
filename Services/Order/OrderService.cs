@@ -58,7 +58,92 @@ namespace ECommerceApp.Services.Orders
         }
         public async Task<ServiceResult<OrderDetailsResponse>> PlaceOrder(int userId, PlaceOrderRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+
+            var cartItems = await _context.CartItems
+                                            .IgnoreQueryFilters()
+                                            .Include(ci => ci.Product)
+                                            .Where(ci => ci.UserId == userId)
+                                            .OrderBy(ci => ci.ProductId)
+                                            .ToListAsync(cancellationToken);
+            
+            if (cartItems.Count == 0)
+            {
+                _logger.LogWarning("Place Order Failed: No items in the cart");
+                return ServiceResult<OrderDetailsResponse>.Failed("No items in the cart", ErrorType.ValidationFailed);
+            }
+
+            var noLongerAvailable = new List<string>();
+            var notEnoughStock = new List<string>();
+            foreach (var item in cartItems)
+            {
+                if (item.Product!.IsDeleted)
+                {
+                    noLongerAvailable.Add(item.Product.ProductName);
+                }
+                else if (item.Product.StockQuantity < item.Quantity)
+                {
+                    notEnoughStock.Add(item.Product.ProductName);
+                }
+            }
+
+            if (noLongerAvailable.Count > 0 || notEnoughStock.Count > 0)
+            {
+                var errors = new List<string>();
+                if (noLongerAvailable.Count > 0)
+                    errors.Add($"no longer available: {string.Join(", ", noLongerAvailable)}");
+                if (notEnoughStock.Count > 0)
+                    errors.Add($"not enough stock: {string.Join(", ", notEnoughStock)}");
+
+                string dynamicMessage = string.Join(" | ", errors);
+                _logger.LogWarning("Place Order Failed: {ErrorMessage}", dynamicMessage);
+                return ServiceResult<OrderDetailsResponse>.Failed(dynamicMessage, ErrorType.ValidationFailed);
+            }
+
+
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            foreach(var item in cartItems)
+            {
+                int rowsAffected = await _context.Products
+                        .Where(p => !p.IsDeleted && p.ProductId == item.ProductId && p.StockQuantity >= item.Quantity)
+                        .ExecuteUpdateAsync(setters => setters
+                               .SetProperty(p => p.StockQuantity, p => p.StockQuantity - item.Quantity)
+                               .SetProperty(p => p.ModifiedOn, DateTime.UtcNow), 
+                               cancellationToken
+                        );
+                if (rowsAffected == 0)
+                {
+                    _logger.LogWarning("Place Order Failed: Product stock changed concurrently or deleted for {ProductName}", item.Product!.ProductName);
+                    return ServiceResult<OrderDetailsResponse>.Failed($"Product stock became unavailable for '{item.Product.ProductName}'. Please try again.", ErrorType.Conflict);
+                }
+            }
+
+            var order = _mapper.Map<Order>(request);
+            order.UserId = userId;
+
+            var orderItems = _mapper.Map<List<OrderItem>>(cartItems);
+            
+            order.TotalAmount = orderItems.Sum(oi => oi.UnitPrice * oi.Quantity);
+            order.Items = orderItems;
+
+            try
+            {
+                _context.CartItems.RemoveRange(cartItems);
+
+                await _context.Orders.AddAsync(order, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch(DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning(ex, "Place Order Failed: Your cart changed, please try again");
+                return ServiceResult<OrderDetailsResponse>.Failed("Your cart changed, please try again", ErrorType.Conflict);
+            }
+            
+
+            var res = _mapper.Map<OrderDetailsResponse>(order);
+            
+            _logger.LogInformation("Place Order Successful: Order Placed {OrderId}", res.OrderId);
+            return ServiceResult<OrderDetailsResponse>.Success(res);
         }
 
         // Admin Service

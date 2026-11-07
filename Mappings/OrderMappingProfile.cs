@@ -11,10 +11,13 @@ namespace ECommerceApp.Mappings
         {
             CreateMap<PlaceOrderRequest, Order>();
             CreateMap<Order, OrderDetailsResponse>();
-            CreateMap<Order, OrderSummaryResponse>();
 
             // Order Items
             CreateMap<OrderItem, OrderItemResponse>();
+            CreateMap<CartItem, OrderItem>()
+                .ForMember(dest => dest.Product, opt => opt.Ignore())
+                .ForMember(dest => dest.ProductName, obj => obj.MapFrom(src => src.Product!.ProductName))
+                .ForMember(dest => dest.UnitPrice, obj => obj.MapFrom(src => src.Product!.Price));
         }
     }
 }
