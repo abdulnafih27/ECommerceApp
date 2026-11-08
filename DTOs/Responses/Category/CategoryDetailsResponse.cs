@@ -1,6 +1,6 @@
 ﻿using ECommerceApp.Models;
 
-namespace ECommerceApp.DTOs.Responses.Category
+namespace ECommerceApp.DTOs.Responses.Categories
 {
     public class CategoryDetailsResponse
     {

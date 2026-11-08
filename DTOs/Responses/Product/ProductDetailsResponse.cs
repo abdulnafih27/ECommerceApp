@@ -1,5 +1,5 @@
 
-namespace ECommerceApp.DTOs.Responses.Product
+namespace ECommerceApp.DTOs.Responses.Products
 {
     public class ProductDetailsResponse
     {

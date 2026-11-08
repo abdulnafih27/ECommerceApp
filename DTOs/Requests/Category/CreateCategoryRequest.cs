@@ -1,7 +1,7 @@
 ﻿using ECommerceApp.Common;
 using System.ComponentModel.DataAnnotations;
 
-namespace ECommerceApp.DTOs.Requests.Category
+namespace ECommerceApp.DTOs.Requests.Categories
 {
     public class CreateCategoryRequest
     {

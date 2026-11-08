@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ECommerceApp.DTOs.Requests.Product
+namespace ECommerceApp.DTOs.Requests.Products
 {
     public class CreateProductRequest
     {

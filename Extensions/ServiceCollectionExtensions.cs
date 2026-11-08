@@ -13,27 +13,29 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
     {
-
-        services.AddControllers();
         services.AddOpenApi();
-        services.AddAuthorization();
 
         // Create sql connection
         var connectionString =  config.GetConnectionString("DefaultConnection");
-        //services.AddDbContext<AppDbContext>(options => 
-        //            options.UseSqlite(connectionString));
 
         services.AddDbContext<AppDbContext>(options =>
                          options.UseSqlServer(connectionString));
 
         // AutoMapper service registration
         services.AddAutoMapper(cfg =>
-        {
-           cfg.AddProfile<UserMappingProfile>();
-           cfg.AddProfile<ProductMappingProfile>();
-           cfg.AddProfile<CategoryMappingProfile>();
-           cfg.AddProfile<CartItemsMappingProfile>();
-        }, typeof(UserMappingProfile), typeof(ProductMappingProfile), typeof(CategoryMappingProfile), typeof(CartItemsMappingProfile));
+            {
+               cfg.AddProfile<UserMappingProfile>();
+               cfg.AddProfile<ProductMappingProfile>();
+               cfg.AddProfile<CategoryMappingProfile>();
+               cfg.AddProfile<CartItemsMappingProfile>();
+               cfg.AddProfile<OrderMappingProfile>();
+            },  
+            typeof(UserMappingProfile), 
+            typeof(ProductMappingProfile), 
+            typeof(CategoryMappingProfile), 
+            typeof(CartItemsMappingProfile), 
+            typeof(OrderMappingProfile)
+        );
 
         // Register JWT Authentication 
         var key = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not found in the configuration");

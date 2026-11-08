@@ -9,8 +9,10 @@ public class ActiveStatusAuthorizationHandler : AuthorizationHandler<ActiveStatu
         _context = context;
     }
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ActiveStatusRequirement requirement)
-    {
+    {   
         
+        if (context.User.Identity?.IsAuthenticated ?? false)
+        {
             CancellationToken cancellationToken = (context.Resource as HttpContext)?.RequestAborted ?? throw new InvalidCastException("Authorization handler was not called through a http request");    
             // Get the current users Id
             var userId = context.User.GetCurrentUser();
@@ -22,6 +24,7 @@ public class ActiveStatusAuthorizationHandler : AuthorizationHandler<ActiveStatu
             {
                 context.Succeed(requirement);
             }
+        }
     
     }
 }

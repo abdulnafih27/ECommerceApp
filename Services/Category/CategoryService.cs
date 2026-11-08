@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using ECommerceApp.DTOs.Requests.Category;
-using ECommerceApp.DTOs.Responses.Category;
+using ECommerceApp.DTOs.Requests.Categories;
+using ECommerceApp.DTOs.Responses.Categories;
 using ECommerceApp.Extensions;
 using ECommerceApp.Models;
 using Microsoft.EntityFrameworkCore;

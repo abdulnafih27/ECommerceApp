@@ -1,8 +1,8 @@
 using AutoMapper;
 using ECommerceApp.Extensions;
 using ECommerceApp.Models;
-using ECommerceApp.DTOs.Responses.Product;
-using ECommerceApp.DTOs.Requests.Product;
+using ECommerceApp.DTOs.Responses.Products;
+using ECommerceApp.DTOs.Requests.Products;
 using Microsoft.EntityFrameworkCore;
 
 public class ProductService : IProductService

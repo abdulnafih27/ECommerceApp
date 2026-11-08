@@ -7,6 +7,7 @@ namespace ECommerceApp.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [Authorize(policy:"ActiveStatus")]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;

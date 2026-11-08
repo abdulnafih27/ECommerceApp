@@ -1,5 +1,5 @@
-﻿using ECommerceApp.DTOs.Requests.Category;
-using ECommerceApp.DTOs.Responses.Category;
+﻿using ECommerceApp.DTOs.Requests.Categories;
+using ECommerceApp.DTOs.Responses.Categories;
 public interface ICategoryService
 {
     public Task<ServiceResult<List<CategoryDetailsResponse>>> GetAllCategories(CancellationToken cancellationToken);

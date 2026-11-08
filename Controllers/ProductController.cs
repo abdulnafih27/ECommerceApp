@@ -1,4 +1,4 @@
-﻿using ECommerceApp.DTOs.Requests.Product;
+﻿using ECommerceApp.DTOs.Requests.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +6,8 @@ namespace ECommerceApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
+    [Authorize(policy:"ActiveStatus")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -16,6 +17,7 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProducts([FromQuery] Pagination pagination,[FromQuery] int? categoryId, CancellationToken cancellationToken)
         {
             var res = await _productService.GetAllProducts(pagination, categoryId, cancellationToken);
@@ -23,6 +25,7 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpGet("{productId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProduct(int productId, CancellationToken cancellationToken)
         {
             var res = await _productService.GetProduct(productId, cancellationToken);
@@ -31,7 +34,6 @@ namespace ECommerceApp.Controllers
 
         // Admin controls
         [HttpPost]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
         {
             var res = await _productService.CreateProduct(request, cancellationToken);
@@ -39,7 +41,6 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpPatch("{productId}/update")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int productId,[FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
         {
             var res = await _productService.UpdateProduct(productId, request, cancellationToken);
@@ -47,7 +48,6 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpDelete("{productId}/delete")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int productId, CancellationToken cancellationToken)
         {
             var res = await _productService.DeleteProduct(productId, cancellationToken);

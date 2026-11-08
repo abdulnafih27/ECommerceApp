@@ -8,6 +8,7 @@ namespace ECommerceApp.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [Authorize(policy: "ActiveStatus")]
     public class OrderController :ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -25,14 +26,14 @@ namespace ECommerceApp.Controllers
         }
 
         [HttpGet("me/{orderId}")]
-        public async Task<IActionResult> GetMyOrders(int orderId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMyOrder(int orderId, CancellationToken cancellationToken)
         {
             var userId = User.GetCurrentUser();
             var res = await _orderService.GetMyOrder(userId, orderId, cancellationToken);
             return this.ToActionResult(res);
         }
 
-        [HttpPost("me")]
+        [HttpPost]
         public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken cancellationToken)
         {
             var userId = User.GetCurrentUser();
@@ -48,9 +49,9 @@ namespace ECommerceApp.Controllers
             return this.ToActionResult(res);
         }
 
-        [HttpGet("{orderId}")]
+        [HttpGet("{orderId:int}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllOrders(int orderId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetOrderById(int orderId, CancellationToken cancellationToken)
         {
             var res = await _orderService.GetOrderById(orderId, cancellationToken);
             return this.ToActionResult(res);
