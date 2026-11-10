@@ -112,6 +112,7 @@ namespace ECommerceApp.Services.Orders
                         );
                 if (rowsAffected == 0)
                 {
+                    await transaction.RollbackAsync(cancellationToken);
                     _logger.LogWarning("Place Order Failed: Product stock changed concurrently or deleted for {ProductName}", item.Product!.ProductName);
                     return ServiceResult<OrderDetailsResponse>.Failed($"Product stock became unavailable for '{item.Product.ProductName}'. Please try again.", ErrorType.Conflict);
                 }

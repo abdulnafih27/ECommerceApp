@@ -68,7 +68,7 @@ public class AuthService : IAuthService
         res.Token = _token.GenerateToken(user);
         
 
-        _logger.LogInformation("Login Successfull: username {Username}", res.Username);
+        _logger.LogInformation("Login Successful: username {Username}", res.Username);
         return ServiceResult<AuthUserResponse>.Success(res);
     }
 
