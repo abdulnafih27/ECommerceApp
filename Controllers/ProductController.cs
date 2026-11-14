@@ -24,7 +24,7 @@ namespace ECommerceApp.Controllers
             return this.ToActionResult(res);
         }
 
-        [HttpGet("{productId}")]
+        [HttpGet("{productId:int}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProduct(int productId, CancellationToken cancellationToken)
         {
@@ -40,14 +40,14 @@ namespace ECommerceApp.Controllers
             return this.ToActionResult(res);
         }
 
-        [HttpPatch("{productId}/update")]
+        [HttpPatch("{productId:int}/update")]
         public async Task<IActionResult> UpdateProduct(int productId,[FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
         {
             var res = await _productService.UpdateProduct(productId, request, cancellationToken);
             return this.ToActionResult(res);
         }
 
-        [HttpDelete("{productId}/delete")]
+        [HttpDelete("{productId:int}/delete")]
         public async Task<IActionResult> DeleteProduct(int productId, CancellationToken cancellationToken)
         {
             var res = await _productService.DeleteProduct(productId, cancellationToken);
