@@ -1,4 +1,17 @@
-app.db
-bin/
-obj/
+
+# Build output
+**/bin/
+**/obj/
+.env
+
+# Visual Studio
 .vs/
+*.user
+*.suo
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
