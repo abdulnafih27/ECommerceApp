@@ -21,13 +21,13 @@ To stop it, run `docker compose down`. Data is kept in a Docker volume. Run `doc
 
 ### Configuration (`.env`)
 
-| Variable | Purpose |
-|---|---|
-| `SA_PASSWORD` | SQL Server password. Must meet SQL Server's password policy (8+ characters, upper and lower case, a digit and a symbol). Do not use `;`, `=`, `$` or quotes. |
-| `JWT_KEY` | Signing key for tokens. Use at least 32 random characters. |
-| `JWT_ISSUER`, `JWT_AUDIENCE` | Any consistent strings. |
-| `JWT_EXPIRY_MINUTES` | Token lifetime. |
-| `ADMIN_EMAIL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` | The first admin account, created at startup if no admin exists. |
+| Variable                                          | Purpose                                                                                                                                                      |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SA_PASSWORD`                                     | SQL Server password. Must meet SQL Server's password policy (8+ characters, upper and lower case, a digit and a symbol). Do not use `;`, `=`, `$` or quotes. |
+| `JWT_KEY`                                         | Signing key for tokens. Use at least 32 random characters.                                                                                                   |
+| `JWT_ISSUER`, `JWT_AUDIENCE`                      | Any consistent strings.                                                                                                                                      |
+| `JWT_EXPIRY_MINUTES`                              | Token lifetime.                                                                                                                                              |
+| `ADMIN_EMAIL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` | The first admin account, created at startup if no admin exists.                                                                                              |
 
 `.env` is git-ignored. Only `.env.example` is committed.
 
@@ -40,18 +40,18 @@ To stop it, run `docker compose down`. Data is kept in a Docker volume. Run `doc
 
 ## Endpoints
 
-| Area | Endpoints | Access |
-|---|---|---|
-| Auth | `POST /api/auth/signup`, `POST /api/auth/login` | Public |
-| Account | `GET /api/user/me`, `PATCH /api/user/me/update`, `PATCH /api/user/me/password`, `DELETE /api/user/me/delete` | Logged in |
-| Users | `GET /api/admin/users` | Admin |
-| Categories | `GET /api/category`, `GET /api/category/{id}` | Public |
-| | `POST /api/category`, `PATCH /api/category/{id}/update`, `DELETE /api/category/{id}/delete` | Admin |
-| Products | `GET /api/product` (paged, optional `categoryId`), `GET /api/product/{id}` | Public |
-| | `POST /api/product`, `PATCH /api/product/{id}/update`, `DELETE /api/product/{id}/delete` | Admin |
-| Cart | `GET /api/cart`, `POST /api/cart/add`, `PATCH /api/cart/{id}/update`, `DELETE /api/cart/{id}/delete` | Customer |
-| Orders | `POST /api/order`, `GET /api/order/me`, `GET /api/order/me/{id}` | Customer |
-| | `GET /api/order`, `GET /api/order/{id}` | Admin |
+| Area       | Endpoints                                                                                                    | Access    |
+| ---------- | ------------------------------------------------------------------------------------------------------------ | --------- |
+| Auth       | `POST /api/auth/signup`, `POST /api/auth/login`                                                              | Public    |
+| Account    | `GET /api/user/me`, `PATCH /api/user/me/update`, `PATCH /api/user/me/password`, `DELETE /api/user/me/delete` | Logged in |
+| Users      | `GET /api/admin/users`                                                                                       | Admin     |
+| Categories | `GET /api/category`, `GET /api/category/{id}`                                                                | Public    |
+|            | `POST /api/category`, `PATCH /api/category/{id}/update`, `DELETE /api/category/{id}/delete`                  | Admin     |
+| Products   | `GET /api/product` (paged, optional `categoryId`), `GET /api/product/{id}`                                   | Public    |
+|            | `POST /api/product`, `PATCH /api/product/{id}/update`, `DELETE /api/product/{id}/delete`                     | Admin     |
+| Cart       | `GET /api/cart`, `POST /api/cart/add`, `PATCH /api/cart/{id}/update`, `DELETE /api/cart/{id}/delete`         | Customer  |
+| Orders     | `POST /api/order`, `GET /api/order/me`, `GET /api/order/me/{id}`                                             | Customer  |
+|            | `GET /api/order`, `GET /api/order/{id}`                                                                      | Admin     |
 
 List endpoints take `?page=` and `?pageSize=` (defaults 1 and 10, maximum page size 20). Out-of-range values are corrected, and unparseable values return 400.
 
