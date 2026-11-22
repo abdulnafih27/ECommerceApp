@@ -30,6 +30,7 @@ To stop it, run `docker compose down`. Data is kept in a Docker volume. Run `doc
 | `ADMIN_EMAIL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` | The first admin account, created at startup if no admin exists.                                                                                              |
 
 `.env` is git-ignored. Only `.env.example` is committed.
+If you change `SA_PASSWORD` after the first start, run `docker compose down -v` to reset the database volume.
 
 ## Try it
 
@@ -37,6 +38,7 @@ To stop it, run `docker compose down`. Data is kept in a Docker volume. Run `doc
 2. As admin, create a category and a product.
 3. Register a customer with `POST /api/auth/signup`, and log in to get a token.
 4. Send the token as `Authorization: Bearer <token>`. Add a product to the cart, then place an order.
+5. A Postman collection with every request is in `postman/ECommerceApp.postman_collection.json`. Import it, set the URL variable to `http://localhost:8080`, and run the login request. It saves the token automatically for the other requests.
 
 ## Endpoints
 
