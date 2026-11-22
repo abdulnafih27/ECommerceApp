@@ -99,7 +99,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"Identifier\" : \"TEST\",\r\n    \"Password\" : \"TEST@123\"\r\n}\r\n// {\r\n//     \"Identifier\" : \"admin@gmail.com\",\r\n//     \"Password\" : \"admin@123\"\r\n// }",
+              "raw": "{\r\n    \"Identifier\" : \"TEST\",\r\n    \"Password\" : \"TEST@123\"\r\n}\r\n// {\r\n//     \"Identifier\" : \"admin123@gmail.com\",\r\n//     \"Password\" : \"admin123@123\"\r\n// }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -757,7 +757,7 @@
   },
   "variable": [
     {
-      "id": "9d56340c-79af-4b0d-87d1-5e36fe57220b",
+      "id": "c7e3a67d-cbb7-4074-afef-1a44a18563d8",
       "key": "authToken",
       "value": ""
     }
