@@ -1,0 +1,765 @@
+{
+  "info": {
+    "_postman_id": "bf523a26-76bb-439e-9a2e-67d46525a48f",
+    "name": "ECommerce",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "RegisterUser",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "823ffe21-20bd-4853-b1a3-0ba5f93affb4",
+                "exec": [
+                  "const res = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"authToken\", res.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "01ed5df2-db73-48b1-b74c-2d808157874c",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "id": "9f888e0f-88a6-4bfc-881e-ff018063e978",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Username\" : \"TEST\",\r\n    \"Email\" : \"TEST@gmail.com\",\r\n    \"Password\" : \"TEST@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/auth/signup",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "LoginUser",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "488250d3-3b24-4cf8-a644-029bdf29cb36",
+                "exec": [
+                  "const res = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"authToken\", res.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "6c817682-a6ae-4852-ac17-11f9b2c356d3",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "id": "3bad3503-1050-43aa-85ed-6c4896c905cb",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Identifier\" : \"TEST\",\r\n    \"Password\" : \"TEST@123\"\r\n}\r\n// {\r\n//     \"Identifier\" : \"admin@gmail.com\",\r\n//     \"Password\" : \"admin@123\"\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/auth/login",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "849d3709-9914-4e34-a327-4295237bbf23"
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "GetUserDetails",
+          "id": "503240d6-e58b-4c88-a627-c1dd1880b938",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/api/user/me",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetAllUsersDetails",
+          "id": "0245df38-1ad1-4a71-9f72-526908e3b8f1",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/api/admin/users?Page=1&PageSize=99999",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "Page",
+                  "value": "1"
+                },
+                {
+                  "key": "PageSize",
+                  "value": "99999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateUser",
+          "id": "448fb7d1-d682-41fa-aed9-fce310ef00b7",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"phoneNumber\" : \"3432\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/user/me/update",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "me",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Password",
+          "id": "d48694c7-36b1-461b-8f47-5eba50290238",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Password\" : \"TEST@123\",\r\n    \"NewPassword\" : \"TEST123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/user/me/password",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "me",
+                "password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DeleteUser",
+          "id": "1d671328-5033-4fcf-ab55-399080c3fafc",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Password\" : \"TEST@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/user/me/delete",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "me",
+                "delete"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "223b823f-02fd-420b-9e86-8a2656206d5c"
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Get All Products",
+          "id": "e04aa85f-25fa-4cc5-925b-2e0cf4409726",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{URL}}/api/product",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "product"
+              ],
+              "query": [
+                {
+                  "key": "pageSize",
+                  "value": "1000",
+                  "disabled": true
+                },
+                {
+                  "key": "categoryId",
+                  "value": "2",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category",
+          "id": "4bb799db-1ff1-47a9-9947-267350ca726a",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/api/product/3",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "id": "3c0d9b59-8ec1-4c61-bab4-4fb1839e8232",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"ProductName\": \"Fresh Carrots\",\r\n        \"ProductDescription\": \"Fresh and crunchy carrots suitable for cooking and salads.\",\r\n        \"CategoryId\": 3,\r\n        \"Price\": 40.00,\r\n        \"StockQuantity\": 120,\r\n        \"ImageUrl\": \"https://placehold.co/600x400?text=Carrots\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/product",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "id": "b6593dd1-80d7-4024-9efd-6c3f814f1ad1",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"productName\": \"Fresh Apples                 \",\r\n    \"productDescription\": \"Crisp and juicy fresh apples.                \",\r\n    \"price\": 190.00,\r\n    \"categoryId\": 2,\r\n    \"stockQuantity\": 150\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/product/3/update",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "3",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "id": "e653325e-cfed-487f-8ba6-5e80f97689d2",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{URL}}/api/product/3/delete",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "product",
+                "3",
+                "delete"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "74ec159f-2360-4637-bc9a-9c48a83ecc6d"
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Get All Category",
+          "id": "96092e81-3e0f-4cda-a061-960b87226d9c",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/api/category",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category",
+          "id": "175b99a1-84c8-4673-a56c-1afa56747535",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"CategoryName\": \"Clothing\",\r\n        \"CategoryDescription\": \"\"\r\n    }"
+            },
+            "url": {
+              "raw": "{{URL}}/api/category/2",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "category",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "id": "b7dcda1f-5e22-4cda-b53f-51403174935e",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"CategoryName\": \"Clothing\",\r\n        \"CategoryDescription\": \"\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/category",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "id": "cc2ecc13-8a3d-4e74-950d-3ec9609e2b2d",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryName\": \"Vegetables\",\r\n    \"categoryDescription\": \"Fresh vegetables and leafy greens. \"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL}}/api/category/3/update",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "category",
+                "3",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "id": "67754400-d284-4253-b3d7-f8e370f045ea",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/api/category/2/delete",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "category",
+                "2",
+                "delete"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "b26fd4f6-75b8-46a6-a305-7c7a9f91e4f0"
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart Items",
+          "id": "d2b132bd-7aba-4277-a923-304dbd79c13b",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{URL}}/api/Cart",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "api",
+                "Cart"
+              ],
+              "query": [
+                {
+                  "key": "pageSize",
+                  "value": "1000",
+                  "disabled": true
+                },
+                {
+                  "key": "categoryId",
+                  "value": "2",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "30f8fc21-dda4-4888-a62c-b8d3639cd81d"
+    }
+  ],
+  "auth": {
+    "type": "bearer"
+  },
+  "variable": [
+    {
+      "id": "9d56340c-79af-4b0d-87d1-5e36fe57220b",
+      "key": "authToken",
+      "value": ""
+    }
+  ]
+}
