@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -36,6 +37,47 @@ public static class ServiceCollectionExtensions
             typeof(CartItemsMappingProfile), 
             typeof(OrderMappingProfile)
         );
+
+        // Add Swagger JWT Token field
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
+            {
+                document.Components ??= new OpenApiComponents();
+
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Enter your JWT token"
+                };
+
+                return Task.CompletedTask;
+            });
+
+            options.AddOperationTransformer((operation, context, cancellationToken) =>
+            {
+                var requiresAuth = context.Description.ActionDescriptor
+                    .EndpointMetadata
+                    .OfType<IAuthorizeData>()
+                    .Any();
+
+                if (requiresAuth)
+                {
+                    operation.Security ??= [];
+
+                    operation.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+                    });
+                }
+
+                return Task.CompletedTask;
+            });
+        });
 
         // Register JWT Authentication 
         var key = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not found in the configuration");
