@@ -30,6 +30,7 @@ services:
       AdminUser__Email: ${ADMIN_EMAIL}
       AdminUser__Username: ${ADMIN_USERNAME}
       AdminUser__Password: ${ADMIN_PASSWORD}
+      Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS__0}
     ports:
       - "8080:8080"
     depends_on:

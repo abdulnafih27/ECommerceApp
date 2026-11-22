@@ -124,6 +124,19 @@ public static class ServiceCollectionExtensions
             });
         });
 
+        // Adding Cors
+        var allowedOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        services.AddCors(options =>
+        {
+            options.AddPolicy("Frontend", policy =>
+            {
+                policy
+                    .WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
 
         // Adding token and password as singleton life time since its stateless and does one job
         services.AddSingleton<ITokenService, TokenService>();
