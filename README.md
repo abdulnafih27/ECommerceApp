@@ -2,7 +2,7 @@
 
 An e-commerce REST API built with ASP.NET Core and SQL Server. Customers browse products, fill a cart and place orders. Admins manage the catalog and view all orders. Orders cannot oversell stock, even when two customers buy the last unit at the same moment.
 
-**Stack:** .NET 10, ASP.NET Core Web API, Entity Framework Core 10, SQL Server 2022, JWT authentication, AutoMapper, BCrypt, MSTest, Docker Compose.
+**Stack:** .NET 10, ASP.NET Core Web API, Entity Framework Core 10, SQL Server 2022, JWT Bearer Authentication, OpenAPI, Swagger UI, AutoMapper, BCrypt, MSTest, Docker Compose.
 
 ## Run it
 
@@ -34,11 +34,24 @@ If you change `SA_PASSWORD` after the first start, run `docker compose down -v` 
 
 ## Try it
 
-1. Log in as the admin with `POST /api/auth/login` (`identifier` can be the username or the email).
-2. As admin, create a category and a product.
-3. Register a customer with `POST /api/auth/signup`, and log in to get a token.
-4. Send the token as `Authorization: Bearer <token>`. Add a product to the cart, then place an order.
-5. A Postman collection with every request is in `postman/ECommerceApp.postman_collection.json`. Import it, set the URL variable to `http://localhost:8080`, and run the login request. It saves the token automatically for the other requests.
+1. Log in as admin using `POST /api/auth/login`.
+2. Create a category and product as admin.
+3. Register a customer using `POST /api/auth/signup`.
+4. Log in as the customer and copy the access token.
+5. Add the token through Swagger UI's **Authorize** button.
+6. Add a product to the cart and place an order.
+
+### Swagger UI
+
+Available at: `http://localhost:8080/swagger`
+
+Use the Authorize button to test protected endpoints.
+
+### Postman
+
+Import `postman/ECommerceApp.postman_collection.json`.
+
+Set the base URL to `http://localhost:8080` and execute the login request. The collection saves the token automatically for subsequent requests.
 
 ## Endpoints
 
